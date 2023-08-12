@@ -10,10 +10,16 @@ const {
   SpecificDoctor,
 } = require("../controller/doctorController");
 const verifyToken = require("../middleware/verifyToken");
+const multer = require("multer");
+const upload = multer();
 
 doctorRouter.post("/api/doctorSignUp", doctorSignUp);
 doctorRouter.post("/api/doctorSignIn", doctorSignIn);
-doctorRouter.post("/api/uploadDegree", verifyToken, uploadDegree);
+doctorRouter.post(
+  "/api/uploadDegree",
+  [verifyToken, upload.single("degreeImg")],
+  uploadDegree
+);
 doctorRouter.post("/api/activateAccount", verifyToken, activateAccount);
 doctorRouter.get("/api/alldoctors", verifyToken, allDoctors);
 doctorRouter.get("/api/SpecificDoctor", verifyToken, SpecificDoctor);

@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const cloudinary = require("cloudinary").v2;
+const fs = require("fs");
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -197,9 +198,9 @@ const uploadDegree = async (req, res) => {
 
     const currentYear = localDate.getFullYear();
 
-    const degreeImage = req.files.degreeImg;
-
-    const response = await cloudinary.uploader.upload(degreeImage.tempFilePath);
+    const response = await cloudinary.uploader.upload(
+      `data:image/png;base64,${req.file.buffer.toString("base64")}`
+    );
     const degreeUpdate = await doctors.findOneAndUpdate(
       { _id: req.query.doctorId },
       { degreePic: `${response.url}` },
