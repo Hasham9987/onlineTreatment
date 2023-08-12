@@ -4,13 +4,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-const cloudinary = require('cloudinary').v2;
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
+const cloudinary = require("cloudinary").v2;
 
 const doctorSignUp = async (req, res) => {
   try {
@@ -197,10 +191,18 @@ const uploadDegree = async (req, res) => {
 
     const currentYear = localDate.getFullYear();
 
-    const degreeImage=req.files.degreeImg
+    //const degreeImage = req.files.degreeImg;
 
-    const response = await cloudinary.uploader.upload(degreeImage.tempFilePath);
-    const degreeUpdate=await doctors.findOneAndUpdate({_id:req.query.doctorId},{degreePic:`${response.url}`},{new:true})
+    const file = req.file;
+
+    console.log(req.files.degreeImg);
+
+    const response = await cloudinary.uploader.upload(file.path);
+    const degreeUpdate = await doctors.findOneAndUpdate(
+      { _id: req.query.doctorId },
+      { degreePic: `${response.url}` },
+      { new: true }
+    );
 
     const msg = {
       to: process.env.RECEIVER_EMAIL,
@@ -223,8 +225,6 @@ const uploadDegree = async (req, res) => {
         message: "Email Sent Successfully",
       });
     });
-
-   
   } catch (e) {
     console.log(e);
     return res.status(400).send({
@@ -234,10 +234,9 @@ const uploadDegree = async (req, res) => {
   }
 };
 
-const activateAccount=async (req,res)=>{
-  try{
-
-    const {doctorId}=req.body
+const activateAccount = async (req, res) => {
+  try {
+    const { doctorId } = req.body;
 
     const checkDoctor = await doctors.findOne({ _id: doctorId });
 
@@ -248,126 +247,136 @@ const activateAccount=async (req,res)=>{
       });
     }
 
-    const activateAccount=await doctors.findOneAndUpdate({_id:doctorId},{isVerified:true},{new:true})
+    const activateAccount = await doctors.findOneAndUpdate(
+      { _id: doctorId },
+      { isVerified: true },
+      { new: true }
+    );
 
     return res.status(200).send({
       success: true,
       message: "Doctor Account Verified Successfully",
     });
-
-  }catch (e) {
+  } catch (e) {
     console.log(e);
     return res.status(400).send({
       success: false,
       message: "Something went wrong",
     });
   }
-}
+};
 
-const allDoctors=async(req,res)=>{
-  try{
-
-    const fetchDoctors=await doctors.find({isVerified:true})
+const allDoctors = async (req, res) => {
+  try {
+    const fetchDoctors = await doctors.find({ isVerified: true });
 
     return res.status(200).send({
       success: true,
       message: "These are all verified Doctors",
-      data:fetchDoctors
+      data: fetchDoctors,
     });
-
-  }catch (e) {
+  } catch (e) {
     console.log(e);
     return res.status(400).send({
       success: false,
       message: "Something went wrong",
     });
   }
-}
+};
 
-const searchdoctors=async(req,res)=>{
-  try{
-
-    if(req.body.doctorName && !req.body.doctorField){
-      const fetchDoctor= await doctors.find({first_name:{'$regex':new RegExp(req.body.doctorName,"i")},isVerified:true})
+const searchdoctors = async (req, res) => {
+  try {
+    if (req.body.doctorName && !req.body.doctorField) {
+      const fetchDoctor = await doctors.find({
+        first_name: { $regex: new RegExp(req.body.doctorName, "i") },
+        isVerified: true,
+      });
 
       return res.status(200).send({
         success: true,
         message: "Your Searching Result",
-        data:fetchDoctor
+        data: fetchDoctor,
       });
     }
 
-    if(!req.body.doctorName && req.body.doctorField){
-      const fetchDoctor= await doctors.find({field:req.body.doctorField,isVerified:true})
+    if (!req.body.doctorName && req.body.doctorField) {
+      const fetchDoctor = await doctors.find({
+        field: req.body.doctorField,
+        isVerified: true,
+      });
 
       return res.status(200).send({
         success: true,
         message: "Your Searching Result",
-        data:fetchDoctor
+        data: fetchDoctor,
       });
     }
 
-    if(req.body.doctorName && req.body.doctorField){
-      const fetchDoctor= await doctors.find({first_name:{'$regex':new RegExp(req.body.doctorName,"i")},field:req.body.doctorField,isVerified:true})
+    if (req.body.doctorName && req.body.doctorField) {
+      const fetchDoctor = await doctors.find({
+        first_name: { $regex: new RegExp(req.body.doctorName, "i") },
+        field: req.body.doctorField,
+        isVerified: true,
+      });
 
       return res.status(200).send({
         success: true,
         message: "Your Searching Result",
-        data:fetchDoctor
+        data: fetchDoctor,
       });
     }
 
-    if(!req.body.doctorName && !req.body.doctorField){
-      const fetchDoctor= await doctors.find({isVerified:true})
+    if (!req.body.doctorName && !req.body.doctorField) {
+      const fetchDoctor = await doctors.find({ isVerified: true });
 
       return res.status(200).send({
         success: true,
         message: "Your Searching Result",
-        data:fetchDoctor
+        data: fetchDoctor,
       });
     }
-
-  }catch (e) {
+  } catch (e) {
     console.log(e);
     return res.status(400).send({
       success: false,
       message: "Something went wrong",
     });
   }
-}
+};
 
-const SpecificDoctor=async(req,res)=>{
-  try{
-
-    if(!req.query.doctorId){
+const SpecificDoctor = async (req, res) => {
+  try {
+    if (!req.query.doctorId) {
       return res.status(400).send({
         success: false,
         message: "Kindly Provide Doctor ID",
       });
     }
 
-    const fetchDoctor=await doctors.find({_id:new Object(req.query.doctorId)})
+    const fetchDoctor = await doctors.find({
+      _id: new Object(req.query.doctorId),
+    });
 
     return res.status(200).send({
       success: true,
       message: "Your Doctor",
-      data:fetchDoctor
+      data: fetchDoctor,
     });
-
-  }catch (e) {
+  } catch (e) {
     console.log(e);
     return res.status(400).send({
       success: false,
       message: "Something went wrong",
     });
   }
-}
+};
 
-module.exports = { 
+module.exports = {
   doctorSignUp,
   doctorSignIn,
   uploadDegree,
   activateAccount,
   allDoctors,
   searchdoctors,
-  SpecificDoctor };
+  SpecificDoctor,
+};
