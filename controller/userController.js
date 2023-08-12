@@ -170,7 +170,7 @@ const userChatBot = async (req, res) => {
             message: "something went wrong",
           });
         } else {
-          return res.status(400).send({
+          return res.status(200).send({
             success: true,
             message: body,
           });
