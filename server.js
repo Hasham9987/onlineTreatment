@@ -3,7 +3,7 @@ const app = express();
 require("dotenv").config();
 const port = process.env.PORT;
 require("./config/db");
-const fileupload = require("express-fileupload");
+const fileUpload = require("express-fileupload");
 const userRouter = require("./router/userRoute");
 const doctorRouter = require("./router/doctorRoute");
 const scheduleRouter = require("./router/doctorSchedule");
@@ -11,7 +11,11 @@ const storeRouter = require("./router/medicalStoreRoute");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(fileupload({ useTempFiles: true }));
+app.use(
+  fileUpload({
+    useTempFiles: true,
+  })
+);
 app.use([userRouter, doctorRouter, scheduleRouter, storeRouter]);
 
 app.listen(port, () => {

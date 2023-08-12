@@ -6,6 +6,12 @@ const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const cloudinary = require("cloudinary").v2;
 
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 const doctorSignUp = async (req, res) => {
   try {
     if (!req.body.email) {
@@ -191,13 +197,9 @@ const uploadDegree = async (req, res) => {
 
     const currentYear = localDate.getFullYear();
 
-    //const degreeImage = req.files.degreeImg;
+    const degreeImage = req.files.degreeImg;
 
-    const file = req.file;
-
-    console.log(req.files.degreeImg);
-
-    const response = await cloudinary.uploader.upload(file.path);
+    const response = await cloudinary.uploader.upload(degreeImage.tempFilePath);
     const degreeUpdate = await doctors.findOneAndUpdate(
       { _id: req.query.doctorId },
       { degreePic: `${response.url}` },
