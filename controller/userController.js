@@ -2,6 +2,8 @@ const { users } = require("../models/user");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const axios = require("axios");
+const request = require("request");
 
 const userSignUp = async (req, res) => {
   try {
@@ -144,4 +146,44 @@ const userSignIn = async (req, res) => {
   }
 };
 
-module.exports = { userSignUp, userSignIn };
+const userChatBot = async (req, res) => {
+  try {
+    var limit = 1;
+    request.get(
+      {
+        url: "https://api.api-ninjas.com/v1/jokes?limit=" + limit,
+        headers: {
+          "X-Api-Key": process.env.jokeApiKey,
+        },
+      },
+      function (error, response, body) {
+        if (error) {
+          console.error("Request failed:", error);
+          return res.status(400).send({
+            success: false,
+            message: error,
+          });
+        } else if (response.statusCode != 200) {
+          console.error("Error:", response.statusCode, body.toString("utf8"));
+          return res.status(400).send({
+            success: false,
+            message: "something went wrong",
+          });
+        } else {
+          return res.status(400).send({
+            success: true,
+            message: body,
+          });
+        }
+      }
+    );
+  } catch (e) {
+    console.log(e);
+    return res.status(400).send({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+module.exports = { userSignUp, userSignIn, userChatBot };
