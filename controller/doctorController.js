@@ -6,6 +6,7 @@ const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
+const { ObjectId } = require("mongodb");
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -241,7 +242,7 @@ const activateAccount = async (req, res) => {
   try {
     const { doctorId } = req.body;
 
-    const checkDoctor = await doctors.findOne({ _id: doctorId });
+    const checkDoctor = await doctors.findOne({ _id: new ObjectId(doctorId) });
 
     if (!checkDoctor) {
       return res.status(400).send({
@@ -251,7 +252,7 @@ const activateAccount = async (req, res) => {
     }
 
     const activateAccount = await doctors.findOneAndUpdate(
-      { _id: doctorId },
+      { _id: new ObjectId(doctorId) },
       { isVerified: true },
       { new: true }
     );
