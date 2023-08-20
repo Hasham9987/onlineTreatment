@@ -62,6 +62,7 @@ const doctorScheduleFetch = async (req, res) => {
 
     const fetchSchedule = await doctorSchedules.find({
       doctorId: new ObjectId(req.query.doctorId),
+      isBooked: false,
     });
 
     return res.status(200).send({
