@@ -190,7 +190,7 @@ const userChatBot = async (req, res) => {
 const userComplain = async (req, res) => {
   try {
     const insertComplain = new Complain({
-      doctorName: req.body.doctorName,
+      appointmentId: req.body.appointmentId,
       complain: req.body.complain,
       userId: req.body.userId,
     });

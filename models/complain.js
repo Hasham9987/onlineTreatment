@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const complain_schema = new mongoose.Schema({
-  doctorName: {
-    type: String,
-    required: true,
+  appointmentId: {
+    type: Schema.Types.ObjectId,
+    ref: "doctorSchedules",
   },
   complain: {
     type: String,
