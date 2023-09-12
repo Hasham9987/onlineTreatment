@@ -149,8 +149,30 @@ const doctorScheduleBook = async (req, res) => {
   }
 };
 
+const doctorScheduleUpcoming = async (req, res) => {
+  try {
+    const fetchSchedule = await doctorSchedules.find({
+      doctorId: new ObjectId(req.query.doctorId),
+      isBooked: true,
+    });
+
+    return res.status(200).send({
+      success: true,
+      message: "Fetch Upcomming Appointment Successfully",
+      data: fetchSchedule,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(400).send({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
 module.exports = {
   doctorScheduleCreate,
   doctorScheduleFetch,
   doctorScheduleBook,
+  doctorScheduleUpcoming,
 };
