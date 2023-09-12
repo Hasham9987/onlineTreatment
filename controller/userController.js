@@ -1,4 +1,5 @@
 const { users } = require("../models/user");
+const { Complain } = require("../models/complain");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -186,4 +187,27 @@ const userChatBot = async (req, res) => {
   }
 };
 
-module.exports = { userSignUp, userSignIn, userChatBot };
+const userComplain = async (req, res) => {
+  try {
+    const insertComplain = new Complain({
+      doctorName: req.body.doctorName,
+      complain: req.body.complain,
+      userId: req.body.userId,
+    });
+    await insertComplain.save();
+
+    return res.status(200).send({
+      success: true,
+      message: "Complain Registered Successfully",
+      data: insertComplain,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(400).send({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+module.exports = { userSignUp, userComplain, userSignIn, userChatBot };
